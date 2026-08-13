@@ -2,13 +2,14 @@
 import { ref, onMounted, reactive } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoleStore } from '@/stores/roleStore'
-import { IconPencil, IconTrash, IconLoader, IconSearch, IconPlus, IconX, IconSend, IconAlertCircle } from '@tabler/icons-vue'
+import { IconPencil, IconTrash, IconLoader, IconSearch, IconPlus, IconX, IconSend, IconAlertCircle, IconCheck } from '@tabler/icons-vue'
 
 const roleStore = useRoleStore()
 
-const { roles, isLoading, isSubmitting, validationErrors, generalErrorMessage } = storeToRefs(roleStore)
+const { roles, isLoading, isSubmitting, validationErrors, generalErrorMessage, generalSuccessMessage } = storeToRefs(roleStore)
 
 const showModal = ref(false)
+const isDeleteMode = ref(false)
 const isEditMode = ref(false)
 
 const form = reactive({
@@ -26,6 +27,7 @@ const resetForm = () => {
 const closeModal = () => {
   showModal.value = false
   isEditMode.value = false
+  isDeleteMode.value = false
   resetForm()
 }
 
@@ -43,6 +45,12 @@ const openEditModal = (role) => {
   form.name = role.name
 }
 
+const openDeleteModal = (id) => {
+  isDeleteMode.value = true
+  form.id = id
+}
+
+// Create & Edit
 const handleSubmit = async () => {
   try {
     if (isEditMode.value) {
@@ -57,6 +65,15 @@ const handleSubmit = async () => {
     closeModal()
   } catch (error) {
 
+  }
+}
+
+const handleDelete = async () => {
+  try {
+    await roleStore.deleteRole(form.id)
+    closeModal()
+  } catch (error) {
+    alert('Error 404!')
   }
 }
 
@@ -91,6 +108,13 @@ onMounted(() => {
     </div>
   </div>
   <!-- End Header -->
+
+  <div v-if="generalSuccessMessage" class="container-xl mt-3">
+    <div class="alert alert-green text-green" role="alert">
+      <IconCheck class="icon icon-1" />
+      {{ generalSuccessMessage }}
+    </div>
+  </div>
 
   <div class="page-body">
     <div class="container-xl">
@@ -149,7 +173,8 @@ onMounted(() => {
                       @click="openEditModal(role)">
                       <IconPencil class="icon icon-1" />
                     </button>
-                    <button type="button" class="btn btn-outline-red btn-icon" title="Delete">
+                    <button type="button" class="btn btn-outline-red btn-icon" title="Delete"
+                      @click="openDeleteModal(role.id)">
                       <IconTrash class="icon icon-1" />
                     </button>
                   </td>
@@ -163,6 +188,7 @@ onMounted(() => {
     </div>
   </div>
 
+  <!-- Modal Create & Edit -->
   <template v-if="showModal">
     <div class="modal modal-blur fade show d-block" role="dialog" aria-modal="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
@@ -174,6 +200,7 @@ onMounted(() => {
             <button type="button" class="btn-close" @click="closeModal"></button>
           </div>
           <form @submit.prevent="handleSubmit">
+            <div class="modal-status" :class="isEditMode ? 'bg-green' : 'bg-primary'"></div>
             <div class="modal-body">
 
               <div v-if="generalErrorMessage" class="alert alert-danger text-danger" role="alert">
@@ -208,6 +235,36 @@ onMounted(() => {
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Modal Delete -->
+  <template v-if="isDeleteMode">
+    <div class="modal modal-blur fade show d-block" role="dialog" aria-modal="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <button type="button" class="btn-close" @click="closeModal"></button>
+        <div class="modal-status bg-red"></div>
+          <div class="modal-body text-center py-4">
+            <h3>Are you sure?</h3>
+            <div class="text-secondary">Do you really want to remove data? <span class="text-red fst-italic">What you've done cannot be undone.</span></div>
+          </div>
+          <div class="modal-footer">
+            <div class="w-100">
+              <div class="row">
+                <div class="col">
+                  <button type="button" class="btn btn-3 w-100" @click="closeModal"> Cancel </button>
+                </div>
+                <div class="col">
+                  <!-- <form @submit.prevent="handleDelete"> -->
+                    <button type="button" class="btn btn-red btn-4 w-100" @click="handleDelete"> Yes, Delete </button>
+                  <!-- </form> -->
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

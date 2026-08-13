@@ -9,6 +9,7 @@ export const useRoleStore = defineStore('role', () => {
   const isSubmitting = ref(false)
   const validationErrors = ref({})
   const generalErrorMessage = ref('')
+  const generalSuccessMessage = ref('')
 
   const apiUrl = import.meta.env.DEV_API_URL;
 
@@ -38,6 +39,9 @@ export const useRoleStore = defineStore('role', () => {
 
     try {
       await axios.post(`${apiUrl}/role`, payload)
+        .then(function (response) {
+          generalSuccessMessage.value = response.data.message
+        });
       await fetchRoles()
     } catch (error) {
       if (error.response && error.response.data) {
@@ -70,6 +74,9 @@ export const useRoleStore = defineStore('role', () => {
 
     try {
       await axios.put(`${apiUrl}/role/${id}`, payload)
+        .then(function (response) {
+          generalSuccessMessage.value = response.data.message
+        });
       await fetchRoles()
     } catch (error) {
       if (error.response && error.response.data) {
@@ -95,6 +102,9 @@ export const useRoleStore = defineStore('role', () => {
   const deleteRole = async (id) => {
     try {
       await axios.delete(`${apiUrl}/role/${id}`)
+        .then(function (response) {
+          generalSuccessMessage.value = response.data.message
+        });
       await fetchRoles()
     } catch (error) {
       throw error
@@ -107,6 +117,7 @@ export const useRoleStore = defineStore('role', () => {
     isSubmitting,
     validationErrors,
     generalErrorMessage,
+    generalSuccessMessage,
     fetchRoles,
     createRole,
     updateRole,
