@@ -7,9 +7,16 @@ import AppFooter from '@/components/common/AppFooter.vue'
   <div class="page">
     <AppNavbar />
      <div class="page-wrapper">
-       <!-- Slot ini akan diisi oleh <router-view /> dari App.vue -->
-       <slot />
+        <main class="main-page container-xl pb-5">
+          <slot />
+        </main>
        <AppFooter />
      </div>
   </div>
 </template>
+
+<style scoped>
+.main-body {
+  padding-bottom: 70px; 
+}
+</style>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink, useRouter, useRoute } from 'vue-router'
-import { darkMode } from '@/utils/darkMode'
+import { darkMode } from '@/utils/userDarkMode'
 import {
   IconHome,
   IconListDetails,
