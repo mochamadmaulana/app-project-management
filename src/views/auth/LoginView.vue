@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
 import { IconLogin2 } from '@tabler/icons-vue'
 
 const router = useRouter()
@@ -24,7 +24,7 @@ const handleLogin = () => {
   <div class="card card-md">
     <div class="card-body">
       <h2 class="h2 text-center mb-4">Login to your account</h2>
-      <form @submit.prevent="handleLogin" autocomplete="off" novalidate>
+      <form @submit.prevent="handleLogin">
         <div class="mb-3">
           <label class="form-label">Email address</label>
           <input type="email" v-model="email" class="form-control" placeholder="your@email.com" autocomplete="off" />
@@ -52,5 +52,5 @@ const handleLogin = () => {
       </form>
     </div>
   </div>
-  <div class="text-center text-secondary mt-3">Don't have account yet? <a href="./sign-up.html" tabindex="-1">Sign up</a></div>
+  <div class="text-center text-secondary mt-3">Don't have account yet? <RouterLink to="/register" tabindex="-1">Sign up</RouterLink></div>
 </template>

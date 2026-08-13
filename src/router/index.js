@@ -8,6 +8,12 @@ const routes = [
     meta: { layout: 'AuthLayout' }
   },
   {
+    path: '/register',
+    name: 'register',
+    component: () => import('@/views/auth/RegisterView.vue'),
+    meta: { layout: 'AuthLayout' }
+  },
+  {
     path: '/dashboard',
     name: 'dashboard',
     component: () => import('@/views/dashboard/DashboardView.vue'),
