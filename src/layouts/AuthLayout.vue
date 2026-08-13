@@ -1,25 +1,17 @@
 <template>
-  <div class="auth-layout">
-    <!-- Mengatur halaman Login/Register agar berada tepat di tengah layar -->
-    <main class="auth-container">
+  <div class="page page-center">
+    <div class="container container-tight py-4">
       <slot />
-    </main>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.auth-layout {
+.page-center {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: center;
-  background-color: #f1f5f9;
-  padding: 1rem;
-}
-
-.auth-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
 }
 </style>

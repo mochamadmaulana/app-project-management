@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { IconLogin2 } from '@tabler/icons-vue'
 
 const router = useRouter()
 
@@ -20,93 +21,36 @@ const handleLogin = () => {
 </script>
 
 <template>
-  <div class="login-card">
-    <h2>Masuk ke Akun</h2>
-    <p class="subtitle">Silakan masukkan email dan kata sandi Anda</p>
-
-    <form @submit.prevent="handleLogin" class="login-form">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input id="email" v-model="email" type="email" placeholder="nama@email.com" required />
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input id="password" v-model="password" type="password" placeholder="••••••••" required />
-      </div>
-
-      <button type="submit" class="btn-submit" :disabled="isLoading">
-        {{ isLoading ? 'Memproses...' : 'Login' }}
-      </button>
-    </form>
+  <div class="card card-md">
+    <div class="card-body">
+      <h2 class="h2 text-center mb-4">Login to your account</h2>
+      <form @submit.prevent="handleLogin" autocomplete="off" novalidate>
+        <div class="mb-3">
+          <label class="form-label">Email address</label>
+          <input type="email" v-model="email" class="form-control" placeholder="your@email.com" autocomplete="off" />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">
+            Password
+            <span class="form-label-description">
+              <a href="./forgot-password.html">I forgot password</a>
+            </span>
+          </label>
+          <input type="password" v-model="password" class="form-control" placeholder="Your password" autocomplete="off" />
+        </div>
+        <div class="form-footer">
+          <button type="submit" class="btn btn-primary w-100" :disabled="isLoading">
+            <div v-if="isLoading">
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Loading...
+            </div>
+            <div v-else>
+              <IconLogin2 class="icon icon-1" />
+              Login
+            </div>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
+  <div class="text-center text-secondary mt-3">Don't have account yet? <a href="./sign-up.html" tabindex="-1">Sign up</a></div>
 </template>
-
-<style scoped>
-.login-card {
-  width: 100%;
-  max-width: 380px;
-  padding: 2rem;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin: auto;
-}
-
-h2 {
-  margin: 0 0 0.25rem 0;
-  color: #0f172a;
-}
-
-.subtitle {
-  color: #64748b;
-  font-size: 0.875rem;
-  margin-bottom: 1.5rem;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #334155;
-}
-
-input {
-  padding: 0.6rem 0.8rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  outline: none;
-}
-
-input:focus {
-  border-color: #0284c7;
-}
-
-.btn-submit {
-  background-color: #0284c7;
-  color: #ffffff;
-  border: none;
-  padding: 0.7rem;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 0.5rem;
-}
-
-.btn-submit:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-</style>
