@@ -40,12 +40,7 @@ const handleRegister = () => {
           <input type="email" v-model="email" id="email" class="form-control" placeholder="your@email.com" autocomplete="off" />
         </div>
         <div class="mb-2">
-          <label class="form-label">
-            Password
-            <span class="form-label-description">
-              <a href="./forgot-password.html">I forgot password</a>
-            </span>
-          </label>
+          <label class="form-label">Password</label>
           <input type="password" v-model="password" id="password" class="form-control" placeholder="Your password" autocomplete="off" />
         </div>
 
