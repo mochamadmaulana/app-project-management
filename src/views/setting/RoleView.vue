@@ -1,16 +1,64 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
-import axios from 'axios'
 import { storeToRefs } from 'pinia'
 import { useRoleStore } from '@/stores/roleStore'
-import { IconPencil, IconTrash, IconLoader, IconSearch, IconPlus } from '@tabler/icons-vue'
+import { IconPencil, IconTrash, IconLoader, IconSearch, IconPlus, IconX, IconSend, IconAlertCircle } from '@tabler/icons-vue'
 
 const roleStore = useRoleStore()
 
-const { roles, isLoading, isSubmitting, validationErrors } = storeToRefs(roleStore)
+const { roles, isLoading, isSubmitting, validationErrors, generalErrorMessage } = storeToRefs(roleStore)
 
 const showModal = ref(false)
 const isEditMode = ref(false)
+
+const form = reactive({
+  id: null,
+  name: null,
+})
+
+const resetForm = () => {
+  form.id = null
+  form.name = null
+  roleStore.validationErrors = {}
+  roleStore.generalErrorMessage = null
+}
+
+const closeModal = () => {
+  showModal.value = false
+  isEditMode.value = false
+  resetForm()
+}
+
+const openCreateModal = () => {
+  isEditMode.value = false
+  showModal.value = true
+  resetForm()
+}
+
+const openEditModal = (role) => {
+  isEditMode.value = true
+  showModal.value = true
+  roleStore.validationErrors = {}
+  form.id = role.id
+  form.name = role.name
+}
+
+const handleSubmit = async () => {
+  try {
+    if (isEditMode.value) {
+      await roleStore.updateRole(form.id, {
+        name: form.name,
+      })
+    } else {
+      await roleStore.createRole({
+        name: form.name,
+      })
+    }
+    closeModal()
+  } catch (error) {
+
+  }
+}
 
 onMounted(() => {
   roleStore.fetchRoles()
@@ -30,13 +78,11 @@ onMounted(() => {
         <!-- Page title actions -->
         <div class="col-auto ms-auto d-print-none">
           <div class="btn-list">
-            <button class="btn btn-primary btn-5 d-none d-sm-inline-block" data-bs-toggle="modal"
-              data-bs-target="#modal-report">
+            <button class="btn btn-primary btn-5 d-none d-sm-inline-block" @click="openCreateModal">
               <IconPlus class="icon icon-1" />
               Create Role
             </button>
-            <button class="btn btn-primary btn-6 d-sm-none btn-icon" data-bs-toggle="modal"
-              data-bs-target="#modal-report" aria-label="Create new report">
+            <button class="btn btn-primary btn-6 d-sm-none btn-icon" @click="openCreateModal">
               <IconPlus class="icon icon-1" />
             </button>
           </div>
@@ -83,7 +129,7 @@ onMounted(() => {
                 <tr v-if="isLoading">
                   <td colspan="4" class="text-center py-4">
                     <IconLoader :size="24" class="animate-spin text-secondary me-2" />
-                    <span>Memuat data...</span>
+                    <span>Loading data...</span>
                   </td>
                 </tr>
 
@@ -99,10 +145,11 @@ onMounted(() => {
                   <td>{{ index + 1 }}</td>
                   <td class="font-weight-medium">{{ role.name }}</td>
                   <td class="text-end">
-                    <button class="btn btn-outline-green btn-icon me-1" title="Edit">
+                    <button type="button" class="btn btn-outline-green btn-icon me-1" title="Edit"
+                      @click="openEditModal(role)">
                       <IconPencil class="icon icon-1" />
                     </button>
-                    <button class="btn btn-outline-red btn-icon" title="Delete">
+                    <button type="button" class="btn btn-outline-red btn-icon" title="Delete">
                       <IconTrash class="icon icon-1" />
                     </button>
                   </td>
@@ -115,6 +162,57 @@ onMounted(() => {
       <!-- End Card -->
     </div>
   </div>
+
+  <template v-if="showModal">
+    <div class="modal modal-blur fade show d-block" role="dialog" aria-modal="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              {{ isEditMode ? 'Edit Role' : 'Add New Role' }}
+            </h5>
+            <button type="button" class="btn-close" @click="closeModal"></button>
+          </div>
+          <form @submit.prevent="handleSubmit">
+            <div class="modal-body">
+
+              <div v-if="generalErrorMessage" class="alert alert-danger text-danger" role="alert">
+                <IconAlertCircle class="icon icon-1" />
+                {{ generalErrorMessage }}
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input type="text" v-model="form.name" class="form-control"
+                  :class="{ 'border-red': validationErrors.name }" placeholder="Contoh: superadmin, admin, user">
+                <small v-if="validationErrors.name" class="text-red fst-italic">
+                  {{ validationErrors.name }}
+                </small>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn link-secondary btn-3" @click="closeModal">
+                <IconX class="icon icon-1" />
+                Cancel
+              </button>
+              <button type="submit" :class="isEditMode ? 'btn-green' : 'btn-primary'" class="btn btn-5 ms-auto"
+                :disabled="isSubmitting">
+                <div v-if="isSubmitting">
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Loading...
+                </div>
+                <div v-else>
+                  <IconSend class="icon icon-1" />
+                  {{ isEditMode ? 'Update' : 'Save' }}
+                </div>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </template>
+
 </template>
 
 <style scoped>
