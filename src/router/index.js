@@ -32,6 +32,12 @@ const routes = [
     meta: { layout: 'AppLayout' }
   },
   {
+    path: '/setting/company',
+    name: 'setting-company',
+    component: () => import('@/views/setting/CompanyView.vue'),
+    meta: { layout: 'AppLayout' }
+  },
+  {
     path: '/setting/role',
     name: 'setting-role',
     component: () => import('@/views/setting/RoleView.vue'),

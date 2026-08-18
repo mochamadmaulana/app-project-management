@@ -8,7 +8,8 @@ import {
   IconUsers,
   IconSettings,
   IconSun,
-  IconMoon
+  IconMoon,
+  IconUser
 } from '@tabler/icons-vue'
 
 const menuItems = [
@@ -31,6 +32,7 @@ const menuItems = [
     name: 'Settings',
     icon: IconSettings,
     children: [
+      { name: 'Company', path: '/setting/company' },
       { name: 'Role', path: '/setting/role' },
       { name: 'Permission', path: '/setting/permission' }
     ]
@@ -235,7 +237,8 @@ const closeDropdown = () => {
           </div>
           <div class="nav-item dropdown">
             <a href="#" class="nav-link d-flex lh-1 p-0 px-2" data-bs-toggle="dropdown" aria-label="Open user menu">
-              <div class="d-none d-xl-block">
+              <span class="avatar avatar-sm"><IconUser class="icon icon-1 text-green" /></span>
+              <div class="d-none d-xl-block ps-2">
                 <div>Mochamad Maulana</div>
                 <div class="mt-1 small text-secondary">Project Manager</div>
               </div>
