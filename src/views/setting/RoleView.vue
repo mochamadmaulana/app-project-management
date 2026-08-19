@@ -187,15 +187,15 @@ onMounted(() => {
                   </td>
                 </tr>
 
-                <tr v-else v-for="(role, index) in filteredRoles" :key="role.id">
+                <tr v-else v-for="(item, index) in filteredRoles" :key="item.id">
                   <td>{{ index + 1 }}</td>
-                  <td >{{ role.name }}</td>
+                  <td >{{ item.name }}</td>
                   <td class="text-end">
                     <button
                       type="button"
                       class="btn btn-outline-green btn-icon me-1"
                       title="Edit"
-                      @click="openEditModal(role)"
+                      @click="openEditModal(item)"
                     >
                       <IconPencil class="icon" />
                     </button>
@@ -203,7 +203,7 @@ onMounted(() => {
                       type="button"
                       class="btn btn-outline-red btn-icon"
                       title="Delete"
-                      @click="openDeleteModal(role.id)"
+                      @click="openDeleteModal(item.id)"
                     >
                       <IconTrash class="icon" />
                     </button>

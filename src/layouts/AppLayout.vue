@@ -7,7 +7,7 @@ import AppFooter from '@/components/common/AppFooter.vue'
   <div class="page">
     <AppNavbar />
      <div class="page-wrapper">
-        <main class="main-page container-xl pb-5">
+        <main class="main-page container-xl">
           <slot />
         </main>
        <AppFooter />
@@ -16,7 +16,7 @@ import AppFooter from '@/components/common/AppFooter.vue'
 </template>
 
 <style scoped>
-.main-body {
+.main-page {
   padding-bottom: 70px; 
 }
 </style>

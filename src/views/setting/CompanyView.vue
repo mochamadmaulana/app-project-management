@@ -5,6 +5,8 @@ import { useCompanyStore } from '@/stores/companyStore';
 
 import BaseModal from '@/components/ui/BaseModal.vue';
 import BaseInput from '@/components/ui/BaseInput.vue';
+import BasePagination from '@/components/ui/BasePagination.vue';
+import BaseAlert from '@/components/ui/BaseAlert.vue';
 
 import { 
   IconPencil,
@@ -20,6 +22,7 @@ import {
 const companyStore = useCompanyStore()
 const {
   companies,
+  pagination,
   isLoading,
   isSubmitting,
   validationErrors,
@@ -36,13 +39,9 @@ const form = reactive({
   name: null
 })
 
-// Filter Pencarian Lokal (Client-Side)
-const filteredCompanies = computed(() => {
-  if (!searchQuery.value) return companies.value
-  return companies.value.filter(role =>
-    role.name?.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
-})
+const loadData = () => {
+  companyStore.fetchCompanies(pagination.value.currentPage)
+}
 
 const openCreateModal = () => {
   isEditMode.value = false
@@ -70,7 +69,7 @@ const resetForm = () => {
 }
 
 onMounted(() => {
-  companyStore.fetchCompany()
+  loadData()
 })
 </script>
 
@@ -142,21 +141,21 @@ onMounted(() => {
                   </td>
                 </tr>
 
-                <tr v-else-if="filteredCompanies.length === 0">
+                <tr v-else-if="companies.length === 0">
                   <td colspan="3" class="text-center py-4 text-secondary">
                     Data not found.
                   </td>
                 </tr>
 
-                <tr v-else v-for="(role, index) in filteredCompanies" :key="role.id">
-                  <td>{{ index + 1 }}</td>
-                  <td >{{ role.name }}</td>
+                <tr v-else v-for="(item, index) in companies" :key="item.id">
+                  <td>{{ (pagination.currentPage - 1) * pagination.perPage + index + 1 }}</td>
+                  <td >{{ item.name }}</td>
                   <td class="text-end">
                     <button
                       type="button"
                       class="btn btn-outline-green btn-icon me-1"
                       title="Edit"
-                      @click="openEditModal(role)"
+                      @click="openEditModal(item)"
                     >
                       <IconPencil class="icon" />
                     </button>
@@ -164,7 +163,7 @@ onMounted(() => {
                       type="button"
                       class="btn btn-outline-red btn-icon"
                       title="Delete"
-                      @click="openDeleteModal(role.id)"
+                      @click="openDeleteModal(item.id)"
                     >
                       <IconTrash class="icon" />
                     </button>
@@ -173,6 +172,17 @@ onMounted(() => {
               </tbody>
             </table>
           </div>
+
+          <BasePagination
+            v-model:currentPage="pagination.currentPage"
+            :total="pagination.total"
+            :show="pagination.show"
+            :perPage="pagination.perPage"
+            :last-page="pagination.lastPage"
+            :has-next-page="pagination.hasNextPage"
+            :has-prev-page="pagination.hasPrevPage"
+            @change="loadData"
+          />
 
         </div>
       </div>

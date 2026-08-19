@@ -10,6 +10,17 @@ export const useCompanyStore = defineStore('company', () => {
   const generalErrorMessage = ref('')
   const generalSuccessMessage = ref('')
 
+  // State Pagination
+  const pagination = ref({
+    currentPage: 1,
+    show: 10,
+    perPage: 10,
+    total: 0,
+    lastPage: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+  })
+
   const apiUrl = import.meta.env.DEV_API_URL || ''
 
   // Helper Parser Error Terpusat (Object Key-Value & Array support)
@@ -46,11 +57,27 @@ export const useCompanyStore = defineStore('company', () => {
   }
 
   // 1. Fetch Roles
-  const fetchCompany = async () => {
+  const fetchCompanies = async (page = null, show = null) => {
     isLoading.value = true
     try {
-      const response = await axios.get(`${apiUrl}/company`)
+      const params = {}
+      if (page) params.page = page
+      if (show) params.show = show
+
+      const response = await axios.get(`${apiUrl}/company`, { params })
       companies.value = Array.isArray(response.data?.data) ? response.data.data : []
+
+      const pag = response.data.pagination || {}
+
+      pagination.value = {
+        currentPage: pag.current_page || page || 1,
+        show: pag.show_item || 10,
+        perPage: show || 10,
+        total: pag.total_item || 0,
+        lastPage: pag.total_page || 1,
+        hasNextPage: pag.has_next_page ?? false,
+        hasPrevPage: pag.has_prev_page ?? false,
+      }
     } catch (error) {
       console.error('Fetch companies error:', error)
     } finally {
@@ -61,11 +88,12 @@ export const useCompanyStore = defineStore('company', () => {
   return {
     companies,
     isLoading,
+    pagination,
     isSubmitting,
     validationErrors,
     generalErrorMessage,
     generalSuccessMessage,
     clearMessages,
-    fetchCompany,
+    fetchCompanies,
   }
 })
