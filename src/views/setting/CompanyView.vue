@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useCompanyStore } from '@/stores/companyStore';
 
@@ -8,7 +8,7 @@ import BaseInput from '@/components/ui/BaseInput.vue';
 import BasePagination from '@/components/ui/BasePagination.vue';
 import BaseAlert from '@/components/ui/BaseAlert.vue';
 
-import { 
+import {
   IconPencil,
   IconTrash,
   IconLoader,
@@ -16,7 +16,8 @@ import {
   IconPlus,
   IconX,
   IconSend,
-  IconSettings
+  IconSettings,
+  IconRefresh
 } from '@tabler/icons-vue'
 
 const companyStore = useCompanyStore()
@@ -40,7 +41,26 @@ const form = reactive({
 })
 
 const loadData = () => {
-  companyStore.fetchCompanies(pagination.value.currentPage)
+  companyStore.fetchCompanies(
+    pagination.value.currentPage,
+    pagination.value.perPage,
+    searchQuery.value
+  )
+}
+
+let searchTimeout = null
+watch(searchQuery, () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    pagination.value.currentPage = null
+    loadData()
+  }, 700)
+})
+
+const refreshData = () => {
+  pagination.value.currentPage = 1
+  pagination.value.perPage = null
+  searchQuery.value = ''
 }
 
 const openCreateModal = () => {
@@ -106,18 +126,18 @@ onMounted(() => {
         <div class="card-body">
 
           <!-- Search Bar -->
-          <div class="col-lg-6 mb-3">
-            <div class="input-icon">
-              <span class="input-icon-addon">
-                <IconSearch class="icon" />
-              </span>
-              <input
-                type="search"
-                v-model="searchQuery"
-                class="form-control"
-                placeholder="Search..."
-                autocomplete="off"
-              />
+          <div class="row">
+            <div class="col-lg-6 mb-3">
+              <div class="input-icon">
+                <span class="input-icon-addon">
+                  <IconSearch class="icon" />
+                </span>
+                <input type="search" v-model="searchQuery" class="form-control" placeholder="Search..."
+                  autocomplete="off" />
+                </div>
+            </div>
+            <div v-if="searchQuery" class="col text-end">
+              <button type="button" class="btn btn-outline-yellow btn-icon" title="Refresh Data" @click="refreshData"><IconRefresh class="icon" /></button>
             </div>
           </div>
 
@@ -149,22 +169,14 @@ onMounted(() => {
 
                 <tr v-else v-for="(item, index) in companies" :key="item.id">
                   <td>{{ (pagination.currentPage - 1) * pagination.perPage + index + 1 }}</td>
-                  <td >{{ item.name }}</td>
+                  <td>{{ item.name }}</td>
                   <td class="text-end">
-                    <button
-                      type="button"
-                      class="btn btn-outline-green btn-icon me-1"
-                      title="Edit"
-                      @click="openEditModal(item)"
-                    >
+                    <button type="button" class="btn btn-outline-green btn-icon me-1" title="Edit"
+                      @click="openEditModal(item)">
                       <IconPencil class="icon" />
                     </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline-red btn-icon"
-                      title="Delete"
-                      @click="openDeleteModal(item.id)"
-                    >
+                    <button type="button" class="btn btn-outline-red btn-icon" title="Delete"
+                      @click="openDeleteModal(item.id)">
                       <IconTrash class="icon" />
                     </button>
                   </td>
@@ -173,16 +185,9 @@ onMounted(() => {
             </table>
           </div>
 
-          <BasePagination
-            v-model:currentPage="pagination.currentPage"
-            :total="pagination.total"
-            :show="pagination.show"
-            :perPage="pagination.perPage"
-            :last-page="pagination.lastPage"
-            :has-next-page="pagination.hasNextPage"
-            :has-prev-page="pagination.hasPrevPage"
-            @change="loadData"
-          />
+          <BasePagination v-model:currentPage="pagination.currentPage" :total="pagination.total" :show="pagination.show"
+            :perPage="pagination.perPage" :last-page="pagination.lastPage" :has-next-page="pagination.hasNextPage"
+            :has-prev-page="pagination.hasPrevPage" @change="loadData" />
 
         </div>
       </div>
@@ -190,23 +195,15 @@ onMounted(() => {
   </div>
 
   <!-- Modal Form (Create / Edit) Menggunakan v-model:show -->
-  <BaseModal
-    v-model:show="showFormModal"
-    :title="isEditMode ? 'Edit Company' : 'Add New Company'"
-    :status-color="isEditMode ? 'bg-green' : 'bg-primary'"
-  >
+  <BaseModal v-model:show="showFormModal" :title="isEditMode ? 'Edit Company' : 'Add New Company'"
+    :status-color="isEditMode ? 'bg-green' : 'bg-primary'">
     <form @submit.prevent="handleSubmit">
       <div class="modal-body">
         <BaseAlert type="danger" :message="generalErrorMessage" class="mb-3" />
 
         <!-- BaseInput -->
-        <BaseInput
-          v-model="form.name"
-          label="Name"
-          placeholder="Example: PT ABC"
-          :error="validationErrors.name"
-          required
-        />
+        <BaseInput v-model="form.name" label="Name" placeholder="Example: PT ABC" :error="validationErrors.name"
+          required />
       </div>
 
       <div class="modal-footer">
@@ -215,12 +212,8 @@ onMounted(() => {
           Cancel
         </button>
 
-        <button
-          type="submit"
-          :class="isEditMode ? 'btn-green' : 'btn-primary'"
-          class="btn ms-auto"
-          :disabled="isSubmitting"
-        >
+        <button type="submit" :class="isEditMode ? 'btn-green' : 'btn-primary'" class="btn ms-auto"
+          :disabled="isSubmitting">
           <span v-if="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status"></span>
           <template v-else>
             <IconSend class="icon me-1" />

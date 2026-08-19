@@ -12,9 +12,9 @@ export const useCompanyStore = defineStore('company', () => {
 
   // State Pagination
   const pagination = ref({
-    currentPage: 1,
+    currentPage: null,
     show: 10,
-    perPage: 10,
+    perPage: null,
     total: 0,
     lastPage: 1,
     hasNextPage: false,
@@ -57,12 +57,13 @@ export const useCompanyStore = defineStore('company', () => {
   }
 
   // 1. Fetch Roles
-  const fetchCompanies = async (page = null, show = null) => {
+  const fetchCompanies = async (page = null, show = null, search = '') => {
     isLoading.value = true
     try {
       const params = {}
       if (page) params.page = page
       if (show) params.show = show
+      if (search && search.trim() !== '') params.search = search.trim()
 
       const response = await axios.get(`${apiUrl}/company`, { params })
       companies.value = Array.isArray(response.data?.data) ? response.data.data : []
